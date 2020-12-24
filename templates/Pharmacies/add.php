@@ -18,13 +18,23 @@
                 <legend><?= __('Add Pharmacy') ?></legend>
                 <?php
                     echo $this->Form->control('name');
-                    echo $this->Form->control('location_id', ['options' => $locations]);
                     echo $this->Form->control('user_id', ['options' => $users]);
                     echo $this->Form->control('address');
+                    echo $this->Form->control('status');//,['checked'=>true]
+                    echo $this->Form->control('latitude',['type' => 'hidden']);//,['disabled' => true]
+                    echo $this->Form->control('length',['type' => 'hidden']);
                 ?>
+				<div class="message text-center">
+					<p id="msg">Por favor seleccione un punto en el mapa. </p>
+				</div>
             </fieldset>
             <?= $this->Form->button(__('Submit')) ?>
             <?= $this->Form->end() ?>
         </div>
+		<br>
+		<div id="mapid" class="farmacia form content mapsize">
+		</div>
     </div>
 </div>
+<br>
+<?= $this->Html->script(['MapaAdd']) ?>

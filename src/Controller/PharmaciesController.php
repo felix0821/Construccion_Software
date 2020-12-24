@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 namespace App\Controller;
-
+use Cake\ORM\TableRegistry;
 /**
  * Pharmacies Controller
  *
@@ -18,11 +18,21 @@ class PharmaciesController extends AppController
      */
     public function index()
     {
+        $pharmacy = $this->Pharmacies->newEmptyEntity();
+        $this->Authorization->authorize($pharmacy);
         $this->paginate = [
-            'contain' => ['Locations', 'Users'],
+            'contain' => ['Users'],
         ];
+        
+        //
         $pharmacies = $this->paginate($this->Pharmacies);
-
+        $role=$this->request->getSession()->read('Auth.rol_id');
+        if($role!=1){
+            $id=$this->request->getSession()->read('Auth.id');
+            $mypharmacies = $this->paginate($this->Pharmacies->find()->where(['user_id' => $id]));
+            $pharmacies=$mypharmacies; 
+        }
+        
         $this->set(compact('pharmacies'));
     }
 
@@ -36,12 +46,21 @@ class PharmaciesController extends AppController
     public function view($id = null)
     {
         $pharmacy = $this->Pharmacies->get($id, [
-            'contain' => ['Locations', 'Users', 'Comments', 'Products'],
+            'contain' => ['Users', 'Comments', 'Products'],
         ]);
-
+        $this->Authorization->authorize($pharmacy);
         $this->set(compact('pharmacy'));
     }
-
+	
+	//ver farmacias
+	public function show($id = null)
+	{
+		$pharmacy = $this->Pharmacies->get($id, [
+            'contain' => ['Users', 'Comments', 'Products'],
+        ]);
+		$this->set(compact('pharmacy'));
+		
+	}
     /**
      * Add method
      *
@@ -50,6 +69,7 @@ class PharmaciesController extends AppController
     public function add()
     {
         $pharmacy = $this->Pharmacies->newEmptyEntity();
+        $this->Authorization->authorize($pharmacy);
         if ($this->request->is('post')) {
             $pharmacy = $this->Pharmacies->patchEntity($pharmacy, $this->request->getData());
             if ($this->Pharmacies->save($pharmacy)) {
@@ -59,9 +79,14 @@ class PharmaciesController extends AppController
             }
             $this->Flash->error(__('The pharmacy could not be saved. Please, try again.'));
         }
-        $locations = $this->Pharmacies->Locations->find('list', ['limit' => 200]);
         $users = $this->Pharmacies->Users->find('list', ['limit' => 200]);
-        $this->set(compact('pharmacy', 'locations', 'users'));
+
+
+        $id=$this->request->getSession()->read('Auth.id');
+        $usersTable = TableRegistry::getTableLocator()->get('Users');
+        $users = $usersTable->find('list', ['limit' => 1])->where(['id' => $id]);
+
+        $this->set(compact('pharmacy', 'users'));
     }
 
     /**
@@ -76,6 +101,9 @@ class PharmaciesController extends AppController
         $pharmacy = $this->Pharmacies->get($id, [
             'contain' => [],
         ]);
+
+        $this->Authorization->authorize($pharmacy);
+
         if ($this->request->is(['patch', 'post', 'put'])) {
             $pharmacy = $this->Pharmacies->patchEntity($pharmacy, $this->request->getData());
             if ($this->Pharmacies->save($pharmacy)) {
@@ -85,9 +113,8 @@ class PharmaciesController extends AppController
             }
             $this->Flash->error(__('The pharmacy could not be saved. Please, try again.'));
         }
-        $locations = $this->Pharmacies->Locations->find('list', ['limit' => 200]);
         $users = $this->Pharmacies->Users->find('list', ['limit' => 200]);
-        $this->set(compact('pharmacy', 'locations', 'users'));
+        $this->set(compact('pharmacy', 'users'));
     }
 
     /**
@@ -101,6 +128,8 @@ class PharmaciesController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $pharmacy = $this->Pharmacies->get($id);
+        $this->Authorization->authorize($pharmacy);
+
         if ($this->Pharmacies->delete($pharmacy)) {
             $this->Flash->success(__('The pharmacy has been deleted.'));
         } else {

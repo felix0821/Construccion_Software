@@ -18,7 +18,8 @@ class UsersController extends AppController
      */
     public function index()
     {
-        $this->Authorization->skipAuthorization();
+        $user = $this->Users->newEmptyEntity();
+        $this->Authorization->authorize($user);
 
         $this->paginate = [
             'contain' => ['Roles'],
@@ -37,6 +38,10 @@ class UsersController extends AppController
      */
     public function view($id = null)
     {
+
+        $user = $this->Users->newEmptyEntity();
+        $this->Authorization->authorize($user);
+
         $user = $this->Users->get($id, [
             'contain' => ['Roles', 'Comments', 'Pharmacies'],
         ]);
@@ -56,6 +61,7 @@ class UsersController extends AppController
         
 
         if ($this->request->is('post')) {
+			//$user->set(['id'=>octdec(uniqid())]);
             $user = $this->Users->patchEntity($user, $this->request->getData());
             if ($this->Users->save($user)) {
                 $this->Flash->success(__('The user has been saved.'));
@@ -77,6 +83,9 @@ class UsersController extends AppController
      */
     public function edit($id = null)
     {
+
+        $user = $this->Users->newEmptyEntity();
+        $this->Authorization->authorize($user);
         $user = $this->Users->get($id, [
             'contain' => [],
         ]); 
@@ -89,6 +98,11 @@ class UsersController extends AppController
             if ($this->Users->save($user)) {
                 $this->Flash->success(__('The user has been saved.'));
 
+
+                $role=$this->request->getSession()->read('Auth.rol_id');
+                if($role!=1){
+                    return $this->redirect(['controller'=>'Search', 'action' => 'index']);
+                }
                 return $this->redirect(['action' => 'index']);
             }
             $this->Flash->error(__('The user could not be saved. Please, try again.'));
@@ -108,6 +122,7 @@ class UsersController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $user = $this->Users->get($id);
+        $this->Authorization->authorize($user);
         if ($this->Users->delete($user)) {
             $this->Flash->success(__('The user has been deleted.'));
         } else {
@@ -121,16 +136,37 @@ class UsersController extends AppController
     {
         $this->Authorization->skipAuthorization();
 
+        $ses= $this->request->getSession()->check('Auth.id');
+        if($ses){
+            $redirect = [
+                'controller' => 'Search',
+                'action' => 'index',    
+            ];
+            return $this->redirect($redirect);
+        }
+
+
         $this->request->allowMethod(['get', 'post']);
         $result = $this->Authentication->getResult();
         // regardless of POST or GET, redirect if user is logged in
         if ($result->isValid()) {
             // redirect to /articles after login success
-            $redirect = $this->request->getQuery('redirect', [
-                'controller' => 'Users',
-                'action' => 'index',
-            ]);
 
+            $data=$this->request->getData();
+            $email=$data['email'];
+            $userDB = $this->Users->find()->where(['email' => $email])->first();
+            $rol_id=$userDB['rol_id'];
+            if($rol_id==3 || $rol_id==2){
+                $redirect = $this->request->getQuery('redirect', [
+                    'controller' => 'Search',
+                    'action' => 'index',
+                ]);
+            }else{
+				$user_id=$userDB['id'];
+                $redirect = $this->request->getQuery('redirect', [
+				'controller' => 'Users','action' => 'view', $user_id,
+				]);
+            }
             return $this->redirect($redirect);
         }
         // display error if user submitted and authentication failed
@@ -154,6 +190,38 @@ class UsersController extends AppController
 
 
 
+
+    public function register()
+    {
+        $this->Authorization->skipAuthorization();
+
+        $ses= $this->request->getSession()->check('Auth.id');
+        if($ses){
+            $redirect = [
+                'controller' => 'Search',
+                'action' => 'index',    
+            ];
+            return $this->redirect($redirect);
+        }
+
+        $user = $this->Users->newEmptyEntity();
+
+        if ($this->request->is('post')) {
+			//$user->set(['id'=>octdec(uniqid())]);
+            $user = $this->Users->patchEntity($user, $this->request->getData());
+            $user->rol_id=2;
+
+            if ($this->Users->save($user)) {
+                $this->Flash->success(__('The user has been saved.'));
+
+                
+                return $this->redirect(['action' => 'login']);
+            }
+            $this->Flash->error(__('The user could not be saved. Please, try again.'));
+        }
+
+        $this->set(compact('user'));
+    }
 
     public function beforeFilter(\Cake\Event\EventInterface $event)
     {

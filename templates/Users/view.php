@@ -8,10 +8,26 @@
     <aside class="column">
         <div class="side-nav">
             <h4 class="heading"><?= __('Actions') ?></h4>
+            <?= $this->Html->link(__('Home'), ['controller' => 'Search','action' => 'index'], ['class' => 'side-nav-item']) ?>
+            
             <?= $this->Html->link(__('Edit User'), ['action' => 'edit', $user->id], ['class' => 'side-nav-item']) ?>
-            <?= $this->Form->postLink(__('Delete User'), ['action' => 'delete', $user->id], ['confirm' => __('Are you sure you want to delete # {0}?', $user->id), 'class' => 'side-nav-item']) ?>
+            
+            
+            <?php if($this->request->getSession()->read('Auth.rol_id')==1){?>
+			<?= $this->Form->postLink(__('Delete User'), ['action' => 'delete', $user->id], ['confirm' => __('Are you sure you want to delete # {0}?', $user->id), 'class' => 'side-nav-item']) ?>
             <?= $this->Html->link(__('List Users'), ['action' => 'index'], ['class' => 'side-nav-item']) ?>
-            <?= $this->Html->link(__('New User'), ['action' => 'add'], ['class' => 'side-nav-item']) ?>
+            <?= $this->Html->link(__('List Pharmacies'), ['controller' => 'pharmacies'], ['class' => 'side-nav-item']) ?>
+		
+			
+            
+            <?= $this->Html->link(__('View messages'), ['controller' => 'Messages','action' => 'index'], ['class' => 'side-nav-item']);?>
+			
+            
+            <?php	}?>
+            <?= $this->Html->link(__('Logout'), ['controller' => 'Users','action' => 'logout'], ['class' => 'side-nav-item']) ?>
+            
+            
+            
         </div>
     </aside>
     <div class="column-responsive column-80">

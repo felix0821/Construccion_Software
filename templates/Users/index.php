@@ -4,6 +4,18 @@
  * @var \App\Model\Entity\User[]|\Cake\Collection\CollectionInterface $users
  */
 ?>
+<div class="row">
+    <aside class="column">
+        <div class="side-nav">
+        <?= $this->Html->link(__('Main Page'), ['controller' => 'Search','action' => 'index'], ['class' => 'side-nav-item']) ?>
+            
+            <?= $this->Html->link(__('My profile'), ['controller' => 'Users','action' => 'view', $this->request->getSession()->read('Auth.id')], ['class' => 'side-nav-item']) ?>
+			
+			 <?= $this->Html->link(__('Logout'), ['controller' => 'Users','action' => 'logout'], ['class' => 'side-nav-item']) ?>
+        </div>
+    </aside>
+    <div class="column-responsive column-80">
+
 <div class="users index content">
     <?= $this->Html->link(__('New User'), ['action' => 'add'], ['class' => 'button float-right']) ?>
     <h3><?= __('Users') ?></h3>
@@ -15,7 +27,6 @@
                     <th><?= $this->Paginator->sort('name') ?></th>
                     <th><?= $this->Paginator->sort('date_born') ?></th>
                     <th><?= $this->Paginator->sort('email') ?></th>
-                    <th><?= $this->Paginator->sort('password') ?></th>
                     <th><?= $this->Paginator->sort('rol_id') ?></th>
                     <th class="actions"><?= __('Actions') ?></th>
                 </tr>
@@ -27,7 +38,6 @@
                     <td><?= h($user->name) ?></td>
                     <td><?= h($user->date_born) ?></td>
                     <td><?= h($user->email) ?></td>
-                    <td><?= h($user->password) ?></td>
                     <td><?= $user->has('role') ? $this->Html->link($user->role->name, ['controller' => 'Roles', 'action' => 'view', $user->role->id]) : '' ?></td>
                     <td class="actions">
                         <?= $this->Html->link(__('View'), ['action' => 'view', $user->id]) ?>
@@ -49,4 +59,5 @@
         </ul>
         <p><?= $this->Paginator->counter(__('Page {{page}} of {{pages}}, showing {{current}} record(s) out of {{count}} total')) ?></p>
     </div>
+</div>
 </div>

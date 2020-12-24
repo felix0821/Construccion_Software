@@ -8,10 +8,16 @@
     <aside class="column">
         <div class="side-nav">
             <h4 class="heading"><?= __('Actions') ?></h4>
+            <?= $this->Html->link(__('Home'), ['controller' => 'Search','action' => 'index'], ['class' => 'side-nav-item']) ?>
+           
             <?= $this->Html->link(__('Edit Pharmacy'), ['action' => 'edit', $pharmacy->id], ['class' => 'side-nav-item']) ?>
             <?= $this->Form->postLink(__('Delete Pharmacy'), ['action' => 'delete', $pharmacy->id], ['confirm' => __('Are you sure you want to delete # {0}?', $pharmacy->id), 'class' => 'side-nav-item']) ?>
             <?= $this->Html->link(__('List Pharmacies'), ['action' => 'index'], ['class' => 'side-nav-item']) ?>
-            <?= $this->Html->link(__('New Pharmacy'), ['action' => 'add'], ['class' => 'side-nav-item']) ?>
+           
+            <?= $this->Html->link(__('View Products'), ['controller' => 'Products','action' => 'index', $pharmacy->id], ['class' => 'side-nav-item']) ?>
+
+            <?= $this->Html->link(__('Logout'), ['controller' => 'Users','action' => 'logout'], ['class' => 'side-nav-item']) ?>
+       
         </div>
     </aside>
     <div class="column-responsive column-80">
@@ -21,10 +27,6 @@
                 <tr>
                     <th><?= __('Name') ?></th>
                     <td><?= h($pharmacy->name) ?></td>
-                </tr>
-                <tr>
-                    <th><?= __('Location') ?></th>
-                    <td><?= $pharmacy->has('location') ? $this->Html->link($pharmacy->location->id, ['controller' => 'Locations', 'action' => 'view', $pharmacy->location->id]) : '' ?></td>
                 </tr>
                 <tr>
                     <th><?= __('User') ?></th>
@@ -38,6 +40,11 @@
                     <th><?= __('Id') ?></th>
                     <td><?= $this->Number->format($pharmacy->id) ?></td>
                 </tr>
+				
+                <tr>
+                    <th><?= __('Status') ?></th>
+                    <td><?= $pharmacy->status ? __('Yes') : __('No'); ?></td>
+                </tr>
             </table>
             <div class="related">
                 <h4><?= __('Related Comments') ?></h4>
@@ -46,7 +53,7 @@
                     <table>
                         <tr>
                             <th><?= __('Id') ?></th>
-                            <th><?= __('Comentario') ?></th>
+                            <th><?= __('Commentary') ?></th>
                             <th><?= __('Date') ?></th>
                             <th><?= __('State') ?></th>
                             <th><?= __('User Id') ?></th>
@@ -56,7 +63,7 @@
                         <?php foreach ($pharmacy->comments as $comments) : ?>
                         <tr>
                             <td><?= h($comments->id) ?></td>
-                            <td><?= h($comments->Comentario) ?></td>
+                            <td><?= h($comments->commentary) ?></td>
                             <td><?= h($comments->date) ?></td>
                             <td><?= h($comments->state) ?></td>
                             <td><?= h($comments->user_id) ?></td>
@@ -112,5 +119,14 @@
                 <?php endif; ?>
             </div>
         </div>
+		<br>
+		<div id="mapid" class="farmacia form content mapsize">
+		</div>
     </div>
 </div>
+<br>
+<div  style="display:none;">
+	<div id="lat"><?= h($pharmacy->latitude) ?></div>
+	<div id="lng"><?= h($pharmacy->length) ?></div>
+</div>
+<?= $this->Html->script(['MapaView']) ?>

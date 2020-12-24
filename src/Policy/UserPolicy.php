@@ -11,6 +11,20 @@ use Authorization\IdentityInterface;
  */
 class UserPolicy
 {
+
+
+         /**
+     * Check if $user can add User
+     *
+     * @param \Authorization\IdentityInterface $user The user.
+     * @param \App\Model\Entity\User $resource
+     * @return bool
+     */
+    public function canIndex(IdentityInterface $user, User $resource)
+    {
+        
+        return $user['rol_id']==1;
+    }
     /**
      * Check if $user can add User
      *
@@ -33,7 +47,7 @@ class UserPolicy
      */
     public function canEdit(IdentityInterface $user, User $resource)
     {
-        return $user['rol_id']==1;
+        return true;
     }
 
     /**
@@ -57,6 +71,6 @@ class UserPolicy
      */
     public function canView(IdentityInterface $user, User $resource)
     {
-        return $user['rol_id']==1;
+        return true;
     }
 }
